@@ -304,8 +304,8 @@ def eval(m, sess, data, lengths, matches, config):
     X = np.vstack(embeddings)
     distances = pdist(X, 'cosine')
     ap, prb = samediff.average_precision(distances[matches == True], distances[matches == False])
-    print "Average precision:", ap
-    print "Precision-recall breakeven:", prb
+    print("Average precision:", ap)
+    print("Precision-recall breakeven:", prb)
     return ap
 
 
