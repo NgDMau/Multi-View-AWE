@@ -285,7 +285,7 @@ def GetLosses(m, sess, input_x1_set, input_x2_set, input_c1_set, input_c2_set, i
             dict[str(i) + '-' + labels1[i] + '-' + labels2[i]] = loss
     dict = sorted(dict.items(), key=operator.itemgetter(1), reverse=True)
     fout = open('../Data4Display/Loss_Edis_stats.txt', 'w+')
-    print dict
+    print(dict)
     for key, value in dict:
         fout.write(key + ' ' + str(value) + '\n')
     fout.write('total number of losses greater than 0: ' + str(num))
@@ -299,10 +299,10 @@ def LossVsEditDis(model_path, model_type, model_conf, save_path):
     for i in train.files:
         label = i[:i.find('_')]
         labels.append(label)
-    print labels[389]
+    print(labels[389])
     for i, label in enumerate(train):
         if i == 389:
-            print label
+            print(label)
     names = GetNames()
     input_x1_set, input_c1_set, input_x1_lengths_set, input_c1_lengths_set = GetInputData('../Data/', model_conf)
     input_c2_set, input_c2_lengths_set, otherlabels = GetUnmatchedLabel(train.files, names, model_conf, True)
@@ -356,10 +356,10 @@ def AllEditDistances(full_labels, dataname):
     labels = []
     for label in full_labels:
         labels.append(label[: label.find('_')])
-    print labels
+    print(labels)
     edit_distances = []
     for i in range(len(labels)):
-        print i
+        print(i)
         for j in range(i+1, len(labels)):
             edit_distances.append(EditDistance(labels[i], labels[j]))
     np.save('../Data4Display/' + dataname + '.npy', edit_distances)

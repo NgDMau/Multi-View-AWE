@@ -131,15 +131,15 @@ def main():
     N = len(labels)
 
     # Read distances
-    print "Start time: " + str(datetime.datetime.now())
+    print("Start time: " + str(datetime.datetime.now()))
     if args.binary_dists:
-        print "Reading distances from binary file:", args.distances_fn
+        print("Reading distances from binary file:", args.distances_fn)
         distances_vec = np.fromfile(args.distances_fn, dtype=np.float32)
     else:
-        print "Reading distances from text file:", args.distances_fn
+        print("Reading distances from text file:", args.distances_fn)
         distances_vec = np.fromfile(args.distances_fn, dtype=np.float32, sep="\n")
     if np.isnan(np.sum(distances_vec)):
-        print "Warning: Distances contain nan"
+        print("Warning: Distances contain nan")
         # distances_vec = np.nan_to_num(distances_vec)
         # distances_vec[np.where(np.isnan(distances_vec))] = np.inf
 
@@ -151,12 +151,12 @@ def main():
     #     i_dist_vec += 1
 
     # Calculate average precision
-    print "Calculating statistics."
+    print("Calculating statistics.")
     matches = generate_matches_array(labels)
     ap, prb = average_precision(distances_vec[matches == True], distances_vec[matches == False], False)
-    print "Average precision:", ap
-    print "Precision-recall breakeven:", prb
-    print "End time: " + str(datetime.datetime.now())
+    print("Average precision:", ap)
+    print("Precision-recall breakeven:", prb)
+    print("End time: " + str(datetime.datetime.now()))
 
 
 if __name__ == "__main__":

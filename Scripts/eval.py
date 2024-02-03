@@ -33,8 +33,8 @@ def acous_text_eval(m, sess, data, lengths, text_data, text_lengths, matches, co
             distances.append(cosine(X[i], Y[j]))
     distances = np.asarray(distances)
     ap, prb = samediff.average_precision(distances[matches == True], distances[matches == False])
-    print "Average precision:", ap
-    print "Precision-recall breakeven:", prb
+    print("Average precision:", ap)
+    print("Precision-recall breakeven:", prb)
     return ap
 
 
