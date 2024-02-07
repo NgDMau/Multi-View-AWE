@@ -70,7 +70,7 @@ def generate_matches_array(labels):
     matching or non-matching labels.
     """
     N = len(labels)
-    matches = np.zeros(N * (N - 1) / 2, dtype=np.bool)
+    matches = np.zeros(N * (N - 1) // 2, dtype=bool)
 
     # For every distance, mark whether it is a true match or not
     cur_matches_i = 0
