@@ -366,6 +366,12 @@ with tf.variable_scope('model', reuse=None):
 
         # pad input_x1 and input_c1, get validation data ready
         input_x1_set, input_c1_set, input_x1_lengths_set, input_c1_lengths_set= dp.GetInputData('../Data/', conf)
+
+        print(f"input_x1_set: {len(input_x1_set)}")
+        print(f"input_c1_set: {len(input_c1_set)}")
+        print(f"input_x1_lengths_set: {(input_x1_lengths_set)}")
+        print(f"input_c1_lengths_set: {(input_c1_lengths_set)}")
+
         dev = np.load('../Data/dev.npz')
         train = np.load('../Data/train.npz')
         valid_data, valid_lengths, valid_matches = dp.GetTestData(dev)
@@ -401,20 +407,25 @@ with tf.variable_scope('model', reuse=None):
                     input_x2_set, input_x2_lengths_set = dp.GetUnmatchedAcous(train, conf)
 
                 output_name = dp.OutputName(args)
-                fout = open('../Outputs/2biLSTM/' + output_name + '.txt', 'a+')
-                avg_cost = run_epoch(m, m.train_step, sess, conf.objective, input_x1_set, input_x2_set, input_c1_set, input_c2_set, input_x1_lengths_set, input_x2_lengths_set, input_c1_lengths_set, input_c2_lengths_set)
-
-                # write the results to file
-                fout.write('Epoch ' + str(i) + ': ' + str(avg_cost) + '\n')
-
-                # calculate AP every 5 epochs
-                if (i+1) % 5 == 0 or i == 0:
-                    dev_ap = eval(mvalid, sess, valid_data, valid_lengths, valid_matches, conf)
-                    fout.write('Dev AP: ' + str(dev_ap) + '\n')
-                    train_ap = eval(mvalid, sess, train_data, train_lengths, train_matches, conf)
-                    fout.write('Train AP: ' + str(train_ap) + '\n')
-                fout.close()
                 
+                
+
+
+                # fout = open('../Outputs/2biLSTM/' + output_name + '.txt', 'a+')
+                with open('../Outputs/2biLSTM/' + output_name + '.txt', 'a+') as file:
+                    avg_cost = run_epoch(m, m.train_step, sess, conf.objective, input_x1_set, input_x2_set, input_c1_set, input_c2_set, input_x1_lengths_set, input_x2_lengths_set, input_c1_lengths_set, input_c2_lengths_set)
+
+                    # write the results to file
+                    file.write('Epoch ' + str(i) + ': ' + str(avg_cost) + '\n')
+
+                    # calculate AP every 5 epochs
+                    if (i+1) % 5 == 0 or i == 0:
+                        dev_ap = eval(mvalid, sess, valid_data, valid_lengths, valid_matches, conf)
+                        file.write('Dev AP: ' + str(dev_ap) + '\n')
+                        train_ap = eval(mvalid, sess, train_data, train_lengths, train_matches, conf)
+                        file.write('Train AP: ' + str(train_ap) + '\n')
+                #fout.close()
+
                 if (i + 1) % 5 == 0 or i == 0:
                     best_AP, best_idx = dp.BestAP('../Outputs/2biLSTM/' + output_name + '.txt')
                     if i == last_epoch + conf.epoch or dev_ap == best_AP:

@@ -2,39 +2,44 @@ import json
 import librosa
 import numpy as np
 
-def extract_mfcc_features(audio_path, start_time, end_time, sr=None):
+def extract_mfcc_features_from_chunk(audio_path, start_time, end_time, sr=None):
     """
-    Extract 39 MFCC features (13 MFCCs + 13 Delta + 13 Delta-Delta) from a specific segment of an audio file.
-    
+    Extract a feature matrix from a specific segment of an audio file using MFCC.
+    Each feature vector in the matrix is 39-dimensional, composed of:
+    - 13 MFCCs
+    - 13 Delta (first derivative) of MFCCs
+    - 13 Delta-Delta (second derivative) of MFCCs
+
     Parameters:
     - audio_path: Path to the audio file.
-    - start_time: Start time of the word segment in seconds.
-    - end_time: End time of the word segment in seconds.
-    - sr: Sample rate to use. If None, librosa's default will be used.
-    
+    - start_time: Start time of the segment in seconds.
+    - end_time: End time of the segment in seconds.
+    - sr: Sample rate to use. If None, librosa's default (22050 Hz) will be used.
+
     Returns:
-    - mfcc_features: A numpy array containing 39 MFCC features for the segment.
+    - A feature matrix where each row is a 39-dimensional MFCC feature vector.
     """
     
-    # Load the audio file
-    y, sr = librosa.load(audio_path, sr=sr)
+    # Calculate the duration of the segment
+    duration = end_time - start_time
     
-    # Extract the segment
-    start_sample = int(start_time * sr)
-    end_sample = int(end_time * sr)
-    word_segment = y[start_sample:end_sample]
+    # Load only the specified segment of the audio file
+    y, sr = librosa.load(audio_path, sr=sr, offset=start_time, duration=duration)
     
     # Compute 13 MFCCs
-    mfccs = librosa.feature.mfcc(y=word_segment, sr=sr, n_mfcc=13)
+    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
     
-    # Compute Delta and Delta-Delta features
+    # Compute the first and second derivatives (Deltas) of MFCCs
     mfcc_delta = librosa.feature.delta(mfccs)
     mfcc_delta2 = librosa.feature.delta(mfccs, order=2)
     
-    # Concatenate to get 39 features
+    # Concatenate MFCCs, Deltas, and Delta-Deltas to form 39-dimensional features
     mfcc_features = np.concatenate((mfccs, mfcc_delta, mfcc_delta2), axis=0)
     
-    return mfcc_features
+    # Transpose the result to have feature vectors as rows
+    feature_matrix = mfcc_features.T
+    
+    return feature_matrix
 
 # Load the updated_processed_data.json file
 with open('Temp_data/new_updated_processed_data.json', 'r') as file:
@@ -55,10 +60,10 @@ for word, sub_json in data.items():
         for i, interval in enumerate(intervals): 
             if isinstance(interval, list):
                 start_time, end_time = interval
-                if end_time - start_time >= 0.5:
+                if end_time - start_time >= 0.3:
                     # print(f"Start: {start_time}, End: {end_time}")
                     # Extract the MFCC features for this segment
-                    mfcc_features = extract_mfcc_features(audio_path, start_time, end_time)
+                    mfcc_features = extract_mfcc_features_from_chunk(audio_path, start_time, end_time)
                     mfcc_features_list = mfcc_features.tolist() if mfcc_features is not None else None
                     # Replace the interval with the extracted MFCC features
                     print(type(mfcc_features))
@@ -87,5 +92,5 @@ for word, audio_path in items_to_remove:
             del data[word]
 
 # Save the updated data back to a new JSON file
-with open('Temp_data/mfcc_processed_data.json', 'w') as file:
+with open('Temp_data/mfcc_features.json', 'w') as file:
     json.dump(output_data, file, indent=2)
